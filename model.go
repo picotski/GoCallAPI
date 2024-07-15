@@ -34,7 +34,12 @@ func (c *call) updateCall(db *sql.DB) error {
 }
 
 func (c *call) deleteCall(db *sql.DB) error {
-	return errors.New("Not implemented")
+	_, err := db.Exec(
+		"DELETE FROM calls WHERE id=$1",
+		c.ID, 
+	)
+
+	return err
 }
 
 func (c *call) createCall(db *sql.DB) error {
