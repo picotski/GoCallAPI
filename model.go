@@ -43,5 +43,15 @@ func (c *call) deleteCall(db *sql.DB) error {
 }
 
 func (c *call) createCall(db *sql.DB) error {
-	return errors.New("Not implemented")
+	err := db.QueryRow(
+		"INSERT INTO calls(caller, status) VALUES($1, $2) RETURNING id",
+		c.Caller, 
+		c.Status,
+	).Scan(&c.ID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
