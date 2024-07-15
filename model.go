@@ -5,12 +5,12 @@ import (
 )
 
 type call struct {
-	ID     int    `json:"id"`
-	Caller string `json:"caller"`
+	ID        int    `json:"id"`
+	Caller    string `json:"caller"`
 	Recipient string `json:"recipient"`
-	Status string `json:"status"`
+	Status    string `json:"status"`
 	StartTime string `json:"startTime"`
-	EndTime string `json:"endTime"`
+	EndTime   string `json:"endTime"`
 }
 
 // Get one call
@@ -19,12 +19,12 @@ func (c *call) getCall(db *sql.DB) error {
 		"SELECT id, caller, recipient, status, start_time, end_time FROM calls WHERE id=$1",
 		c.ID,
 	).Scan(
-		&c.ID, 
-		&c.Caller, 
-		&c.Recipient, 
+		&c.ID,
+		&c.Caller,
+		&c.Recipient,
 		&c.Status,
-		&c.StartTime, 
-		&c.EndTime, 
+		&c.StartTime,
+		&c.EndTime,
 	)
 }
 
@@ -32,12 +32,12 @@ func (c *call) getCall(db *sql.DB) error {
 func (c *call) updateCall(db *sql.DB) error {
 	_, err := db.Exec(
 		"UPDATE calls SET caller=$1, recipient=$2, status=$3, start_time=$4, end_time=$5 WHERE id=$6",
-		c.Caller, 
+		c.Caller,
 		c.Recipient,
 		c.Status,
 		c.StartTime,
 		c.EndTime,
-		c.ID, 
+		c.ID,
 	)
 
 	return err
@@ -47,7 +47,7 @@ func (c *call) updateCall(db *sql.DB) error {
 func (c *call) deleteCall(db *sql.DB) error {
 	_, err := db.Exec(
 		"DELETE FROM calls WHERE id=$1",
-		c.ID, 
+		c.ID,
 	)
 
 	return err
@@ -57,12 +57,12 @@ func (c *call) deleteCall(db *sql.DB) error {
 func (c *call) createCall(db *sql.DB) error {
 	err := db.QueryRow(
 		"INSERT INTO calls(caller, recipient, status, start_time, end_time) VALUES($1, $2, $3, $4, $5) RETURNING id",
-		c.Caller, 
-		c.Recipient, 
+		c.Caller,
+		c.Recipient,
 		c.Status,
-		c.StartTime, 
-		c.EndTime, 
-		).Scan(&c.ID)
+		c.StartTime,
+		c.EndTime,
+	).Scan(&c.ID)
 
 	if err != nil {
 		return err
