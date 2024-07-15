@@ -12,7 +12,10 @@ type call struct {
 }
 
 func (c *call) getCall(db *sql.DB) error {
-	return errors.New("Not implemented")
+	return db.QueryRow(
+		"SELECT id, caller, status FROM calls WHERE id=$1",
+		c.ID,
+	).Scan(&c.ID, &c.Caller, &c.Status)
 }
 
 func (c *call) updateCall(db *sql.DB) error {
