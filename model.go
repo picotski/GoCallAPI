@@ -70,3 +70,21 @@ func (c *call) createCall(db *sql.DB) error {
 
 	return nil
 }
+
+func CreateTable(db *sql.DB) error {
+	_, err := db.Exec(`
+		CREATE TABLE calls(
+			id SERIAL PRIMARY KEY,
+			caller TEXT,
+			recipient TEXT,
+			status TEXT,
+			startTime TEXT,
+			endTime TEXT,
+		)
+	`)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}

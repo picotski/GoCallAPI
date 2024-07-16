@@ -20,7 +20,7 @@ type App struct {
 
 type Health struct {
 	Status int
-	Time string
+	Time   string
 }
 
 func (a *App) Initialize(user, password, dbName string) {
@@ -144,7 +144,7 @@ func (a *App) deleteCall(w http.ResponseWriter, r *http.Request) {
 
 func (a *App) healthCheck(w http.ResponseWriter, r *http.Request) {
 	responce := Health{
-		Time: time.Now().String(),
+		Time:   time.Now().String(),
 		Status: http.StatusOK,
 	}
 
