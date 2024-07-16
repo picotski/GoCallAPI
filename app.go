@@ -38,7 +38,15 @@ func (a *App) Initialize(user, password, dbName string) {
 		log.Fatal(err)
 	}
 
-	if err := CreateTable(a.DB); err != nil {
+	// Delete table on start
+	if err := DeleteCallTable(a.DB); err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("Table deleted")
+	}
+
+	// Init table on start
+	if err := CreateCallTable(a.DB); err != nil  {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println("Table created")
@@ -55,9 +63,9 @@ func (a *App) Run(address string) {
 
 func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/call", a.createCall).Methods("POST")
-	a.Router.HandleFunc("/call/{id:0-9+}", a.getCall).Methods("GET")
-	a.Router.HandleFunc("/call/{id:0-9+}", a.updateCall).Methods("PUT")
-	a.Router.HandleFunc("/call/{id:0-9+}", a.deleteCall).Methods("DELETE")
+	a.Router.HandleFunc("/call/{id:[0-9]+}", a.getCall).Methods("GET")
+	a.Router.HandleFunc("/call/{id:[0-9]+}", a.updateCall).Methods("PUT")
+	a.Router.HandleFunc("/call/{id:[0-9]+}", a.deleteCall).Methods("DELETE")
 	a.Router.HandleFunc("/health", a.healthCheck).Methods("GET")
 }
 

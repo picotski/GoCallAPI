@@ -71,17 +71,26 @@ func (c *call) createCall(db *sql.DB) error {
 	return nil
 }
 
-func CreateTable(db *sql.DB) error {
+func CreateCallTable(db *sql.DB) error {
 	_, err := db.Exec(`
 		CREATE TABLE calls(
 			id SERIAL PRIMARY KEY,
 			caller TEXT,
 			recipient TEXT,
 			status TEXT,
-			startTime TEXT,
-			endTime TEXT
+			start_time TEXT,
+			end_time TEXT
 		)
 	`)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func DeleteCallTable(db *sql.DB) error {
+	_, err := db.Exec("DROP TABLE calls")
 
 	if err != nil {
 		return err
