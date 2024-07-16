@@ -12,6 +12,9 @@ Create a file called `.env` in the route of the project and add those variables 
 ### Create a Postgres Docker container
 Run the following command to create a container to host the database: `docker run -it -p 5432:5432 -e POSTGRES_PASSWORD=password -d postgres`
 
+### Run Go program
+In the command line run `go run .` and the api will be up and running. You will be able to access the API using thhe following URL: `localhost:8010`
+
 ## Routes
 ### Implemented
 - POST `/call`: Call other User
