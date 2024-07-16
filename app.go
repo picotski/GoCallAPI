@@ -23,6 +23,13 @@ type Health struct {
 	Time   string
 }
 
+type PageResponce struct {
+	TotalCount int    `json:"totalCount"`
+	PrevPage   int    `json:"prevPage"`
+	NextPage   int    `json:"nextPage"`
+	Calls      []call `json:"calls"`
+}
+
 func (a *App) Initialize(user, password, dbName string) {
 	connectionString := fmt.Sprintf(
 		"user=%s password=%s dbname=%s sslmode=disable",
@@ -46,7 +53,7 @@ func (a *App) Initialize(user, password, dbName string) {
 	}
 
 	// Init table on start
-	if err := CreateCallTable(a.DB); err != nil  {
+	if err := CreateCallTable(a.DB); err != nil {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println("Table created")
@@ -62,11 +69,55 @@ func (a *App) Run(address string) {
 }
 
 func (a *App) initializeRoutes() {
+	a.Router.HandleFunc("/calls", a.getCalls).Methods("GET")
 	a.Router.HandleFunc("/call", a.createCall).Methods("POST")
 	a.Router.HandleFunc("/call/{id:[0-9]+}", a.getCall).Methods("GET")
 	a.Router.HandleFunc("/call/{id:[0-9]+}", a.updateCall).Methods("PUT")
 	a.Router.HandleFunc("/call/{id:[0-9]+}", a.deleteCall).Methods("DELETE")
 	a.Router.HandleFunc("/health", a.healthCheck).Methods("GET")
+}
+
+// Get by page
+func (a *App) getCalls(w http.ResponseWriter, r *http.Request) {
+	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
+	count, _ := strconv.Atoi(r.URL.Query().Get("count"))
+
+	if count > 10 || count < 1 {
+		count = 10
+	}
+	if page < 1 {
+		page = 1
+	}
+
+	totalCount, err := CountCalls(a.DB)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	calls, err := getCalls(a.DB, page - 1, count)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	prevPage := page - 1
+	if prevPage < 1 {
+		prevPage = 1
+	}
+	nextPage := page + 1
+	if totalCount < nextPage * count - (count - 1) {
+		nextPage = page
+	}
+
+	res := PageResponce{
+		TotalCount: totalCount,
+		PrevPage:   prevPage,
+		NextPage:   nextPage,
+		Calls:      calls,
+	}
+
+	respondWithJSON(w, http.StatusOK, res)
 }
 
 // Get call by id
