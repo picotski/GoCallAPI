@@ -53,8 +53,8 @@ func (a *App) getCall(w http.ResponseWriter, r *http.Request) {
 		switch err {
 		case sql.ErrNoRows:
 			respondWithError(w, http.StatusNotFound, "Call not found")
-    default:
-      respondWithError(w, http.StatusInternalServerError, err.Error())
+		default:
+			respondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
@@ -80,6 +80,32 @@ func (a *App) createCall(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusCreated, c)
 }
 
+func (a *App) updateCall(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid call ID")
+		return
+	}
+
+	var c call
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&c); err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+	}
+	defer r.Body.Close()
+
+	c.ID = id
+
+	if err := c.updateCall(a.DB); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, c)
+}
+
+// Helper
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.Marshal(payload)
 
