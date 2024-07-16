@@ -74,6 +74,7 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/call/{id:[0-9]+}", a.getCall).Methods("GET")
 	a.Router.HandleFunc("/call/{id:[0-9]+}", a.updateCall).Methods("PUT")
 	a.Router.HandleFunc("/call/{id:[0-9]+}", a.deleteCall).Methods("DELETE")
+	a.Router.HandleFunc("/stop/{id:[0-9]+}", a.endCall).Methods("GET")
 	a.Router.HandleFunc("/health", a.healthCheck).Methods("GET")
 }
 
@@ -95,7 +96,7 @@ func (a *App) getCalls(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	calls, err := getCalls(a.DB, page - 1, count)
+	calls, err := getCalls(a.DB, page-1, count)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -106,7 +107,7 @@ func (a *App) getCalls(w http.ResponseWriter, r *http.Request) {
 		prevPage = 1
 	}
 	nextPage := page + 1
-	if totalCount < nextPage * count - (count - 1) {
+	if totalCount < nextPage*count-(count-1) {
 		nextPage = page
 	}
 
@@ -155,12 +156,42 @@ func (a *App) createCall(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
+	c.startCall()
+
 	if err := c.createCall(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	respondWithJSON(w, http.StatusCreated, c)
+}
+
+// End call
+func (a *App) endCall(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid call ID")
+		return
+	}
+
+	c := call{ID: id}
+	if err := c.getCall(a.DB); err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			respondWithError(w, http.StatusNotFound, "Call not found")
+		default:
+			respondWithError(w, http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+
+	if err := c.stopCall(a.DB); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, c)
 }
 
 // Update call by id

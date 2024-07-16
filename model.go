@@ -2,15 +2,16 @@ package main
 
 import (
 	"database/sql"
+	"time"
 )
 
 type call struct {
-	ID        int    `json:"id"`
-	Caller    string `json:"caller"`
-	Recipient string `json:"recipient"`
-	Status    string `json:"status"`
-	StartTime string `json:"startTime"`
-	EndTime   string `json:"endTime"`
+	ID        int       `json:"id"`
+	Caller    string    `json:"caller"`
+	Recipient string    `json:"recipient"`
+	Status    string    `json:"status"`
+	StartTime time.Time `json:"startTime"`
+	EndTime   time.Time `json:"endTime"`
 }
 
 // Get calls with pagination
@@ -123,6 +124,28 @@ func CountCalls(db *sql.DB) (int, error) {
 	return count, nil
 }
 
+// Start call
+func (c *call) startCall() {
+	c.Status = "Ongoing"
+	c.StartTime = time.Now()
+	c.EndTime = time.Time{}
+}
+
+// Stop call
+func (c *call) stopCall(db *sql.DB) error {
+	c.Status = "Ended"
+	c.EndTime = time.Now()
+
+	_, err := db.Exec(
+		"UPDATE calls SET status=$1, end_time=$2 WHERE id=$3",
+		c.Status,
+		c.EndTime,
+		c.ID,
+	)
+
+	return err
+}
+
 // Init calls table
 func CreateCallTable(db *sql.DB) error {
 	_, err := db.Exec(`
@@ -131,8 +154,8 @@ func CreateCallTable(db *sql.DB) error {
 			caller TEXT,
 			recipient TEXT,
 			status TEXT,
-			start_time TEXT,
-			end_time TEXT
+			start_time TIMESTAMP,
+			end_time TIMESTAMP
 		)
 	`)
 
