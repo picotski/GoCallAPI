@@ -8,11 +8,13 @@ import (
 )
 
 func main() {
+	// load the .env file
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("Error loading .env file: %s", err)
 	}
 
+	// Create the app and the connection to the database
 	a := App{}
 	a.Initialize(
 		os.Getenv("APP_DB_USERNAME"),
