@@ -39,6 +39,7 @@ func (a *App) Run(address string) {
 
 }
 
+// Get call by id
 func (a *App) getCall(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -62,6 +63,7 @@ func (a *App) getCall(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, c)
 }
 
+// Create a new call
 func (a *App) createCall(w http.ResponseWriter, r *http.Request) {
 	var c call
 	decoder := json.NewDecoder(r.Body)
@@ -80,6 +82,7 @@ func (a *App) createCall(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusCreated, c)
 }
 
+// Update call by id
 func (a *App) updateCall(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
