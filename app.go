@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -15,6 +16,11 @@ import (
 type App struct {
 	Router *mux.Router
 	DB     *sql.DB
+}
+
+type Health struct {
+	Status int
+	Time string
 }
 
 func (a *App) Initialize(user, password, dbName string) {
@@ -46,6 +52,7 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/call/{id:0-9+}", a.getCall).Methods("GET")
 	a.Router.HandleFunc("/call/{id:0-9+}", a.updateCall).Methods("PUT")
 	a.Router.HandleFunc("/call/{id:0-9+}", a.deleteCall).Methods("DELETE")
+	a.Router.HandleFunc("/health", a.healthCheck).Methods("GET")
 }
 
 // Get call by id
@@ -133,6 +140,15 @@ func (a *App) deleteCall(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+}
+
+func (a *App) healthCheck(w http.ResponseWriter, r *http.Request) {
+	responce := Health{
+		Time: time.Now().String(),
+		Status: http.StatusOK,
+	}
+
+	respondWithJSON(w, http.StatusOK, responce)
 }
 
 // Helper
