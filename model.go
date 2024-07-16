@@ -79,7 +79,7 @@ func CreateTable(db *sql.DB) error {
 			recipient TEXT,
 			status TEXT,
 			startTime TEXT,
-			endTime TEXT,
+			endTime TEXT
 		)
 	`)
 

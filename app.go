@@ -38,6 +38,12 @@ func (a *App) Initialize(user, password, dbName string) {
 		log.Fatal(err)
 	}
 
+	if err := CreateTable(a.DB); err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("Table created")
+	}
+
 	a.Router = mux.NewRouter()
 
 	a.initializeRoutes()
