@@ -186,6 +186,11 @@ func (a *App) endCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if c.Status == "Ended" {
+		respondWithError(w, http.StatusBadRequest, "Call already ended")
+		return
+	}
+
 	if err := c.stopCall(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
