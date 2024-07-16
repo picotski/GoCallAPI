@@ -33,10 +33,19 @@ func (a *App) Initialize(user, password, dbName string) {
 	}
 
 	a.Router = mux.NewRouter()
+
+	a.initializeRoutes()
 }
 
 func (a *App) Run(address string) {
+	log.Fatal(http.ListenAndServe(":8010", a.Router))
+}
 
+func (a *App) initializeRoutes() {
+	a.Router.HandleFunc("/call", a.createCall).Methods("POST")
+	a.Router.HandleFunc("/call/{id:0-9+}", a.getCall).Methods("GET")
+	a.Router.HandleFunc("/call/{id:0-9+}", a.updateCall).Methods("PUT")
+	a.Router.HandleFunc("/call/{id:0-9+}", a.deleteCall).Methods("DELETE")
 }
 
 // Get call by id
