@@ -108,6 +108,24 @@ func (a *App) updateCall(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, c)
 }
 
+// Delete call by id
+func (a *App) deleteCall(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		respondWithError(w, http.StatusBadRequest, "Invalid Call ID")
+		return
+	}
+
+	c := call{ID: id}
+	if err := c.deleteCall(a.DB); err != nil {
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+}
+
 // Helper
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	response, _ := json.Marshal(payload)
