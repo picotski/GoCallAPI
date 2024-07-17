@@ -32,9 +32,10 @@ type PageResponce struct {
 	Calls      []call.Call `json:"calls"`
 }
 
-func (a *App) Initialize(user, password, dbName string) {
+func (a *App) Initialize(user, password, dbName, hostAddr string) {
 	connectionString := fmt.Sprintf(
-		"host=database port=5432 user=%s password=%s dbname=%s sslmode=disable",
+		"host=%s port=5432 user=%s password=%s dbname=%s sslmode=disable",
+		hostAddr,
 		user,
 		password,
 		dbName,
