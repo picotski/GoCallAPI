@@ -12,7 +12,7 @@ Create a file called `.env` in the route of the project and add those variables 
 - HOST_ADDR=127.0.0.1
 
 ### Run the app
-In the root folder run: `docker compose up -d`. After a few seconds the API will be up and running.
+In the root folder run: `docker compose -f docker-compose.yml up -d`. After a few seconds the API will be up and running.
 
 ## Localy
 ### Create an .env file
@@ -21,12 +21,24 @@ Create a file called `.env` in the route of the project and add those variables 
 - APP_DB_PASSWORD=password
 - APP_DB_NAME=postgres
 - HOST_ADDR=127.0.0.1
+- TEST_HOST_ADDR=http://localhost:8010
 
 ### Create a Postgres Docker container
 Run the following command to create a container to host the database: `docker run -it -p 5432:5432 -e POSTGRES_PASSWORD=password -d postgres`
 
 ### Run Go program
 In the command line run `go run .` and the api will be up and running. You will be able to access the API using thhe following URL: `localhost:8010`
+
+## Tests
+### Docker Compose
+### Create an .env file
+Create a file called `.env` in the route of the project and add those variables with your own values.
+- APP_DB_USERNAME=postgres
+- APP_DB_PASSWORD=password
+- APP_DB_NAME=postgres
+
+### Run the tests
+In the root folder run: `docker compose -f docker-compose.tests.yml up -d`. After a few seconds the API will be up and running.
 
 ## Routes
 ### Implemented
