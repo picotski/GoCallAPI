@@ -1,11 +1,11 @@
-package main
+package call
 
 import (
 	"database/sql"
 	"time"
 )
 
-type call struct {
+type Call struct {
 	ID        int       `json:"id"`
 	Caller    string    `json:"caller"`
 	Recipient string    `json:"recipient"`
@@ -15,7 +15,7 @@ type call struct {
 }
 
 // Get calls with pagination
-func getCalls(db *sql.DB, page, count int) ([]call, error) {
+func GetCalls(db *sql.DB, page, count int) ([]Call, error) {
 	rows, err := db.Query(
 		`SELECT id, caller, recipient, status, start_time, end_time 
 		FROM calls LIMIT $1 OFFSET $2`,
@@ -28,10 +28,10 @@ func getCalls(db *sql.DB, page, count int) ([]call, error) {
 
 	defer rows.Close()
 
-	calls := []call{}
+	calls := []Call{}
 
 	for rows.Next() {
-		var c call
+		var c Call
 		if err := rows.Scan(
 			&c.ID,
 			&c.Caller,
@@ -48,7 +48,7 @@ func getCalls(db *sql.DB, page, count int) ([]call, error) {
 }
 
 // Get one call
-func (c *call) getCall(db *sql.DB) error {
+func (c *Call) GetCall(db *sql.DB) error {
 	return db.QueryRow(
 		"SELECT id, caller, recipient, status, start_time, end_time FROM calls WHERE id=$1",
 		c.ID,
@@ -63,7 +63,7 @@ func (c *call) getCall(db *sql.DB) error {
 }
 
 // Update one call
-func (c *call) updateCall(db *sql.DB) error {
+func (c *Call) UpdateCall(db *sql.DB) error {
 	_, err := db.Exec(
 		"UPDATE calls SET caller=$1, recipient=$2, status=$3, start_time=$4, end_time=$5 WHERE id=$6",
 		c.Caller,
@@ -78,7 +78,7 @@ func (c *call) updateCall(db *sql.DB) error {
 }
 
 // Delete one call
-func (c *call) deleteCall(db *sql.DB) error {
+func (c *Call) DeleteCall(db *sql.DB) error {
 	_, err := db.Exec(
 		"DELETE FROM calls WHERE id=$1",
 		c.ID,
@@ -88,7 +88,7 @@ func (c *call) deleteCall(db *sql.DB) error {
 }
 
 // Create one call
-func (c *call) createCall(db *sql.DB) error {
+func (c *Call) CreateCall(db *sql.DB) error {
 	err := db.QueryRow(
 		"INSERT INTO calls(caller, recipient, status, start_time, end_time) VALUES($1, $2, $3, $4, $5) RETURNING id",
 		c.Caller,
@@ -125,14 +125,14 @@ func CountCalls(db *sql.DB) (int, error) {
 }
 
 // Start call
-func (c *call) startCall() {
+func (c *Call) StartCall() {
 	c.Status = "Ongoing"
 	c.StartTime = time.Now()
 	c.EndTime = time.Time{}
 }
 
 // Stop call
-func (c *call) stopCall(db *sql.DB) error {
+func (c *Call) StopCall(db *sql.DB) error {
 	c.Status = "Ended"
 	c.EndTime = time.Now()
 

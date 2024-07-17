@@ -1,4 +1,4 @@
-package main
+package app
 
 import (
 	"database/sql"
@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/picotski/api/models/call"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -27,7 +29,7 @@ type PageResponce struct {
 	TotalCount int    `json:"totalCount"`
 	PrevPage   int    `json:"prevPage"`
 	NextPage   int    `json:"nextPage"`
-	Calls      []call `json:"calls"`
+	Calls      []call.Call `json:"calls"`
 }
 
 func (a *App) Initialize(user, password, dbName string) {
@@ -46,14 +48,14 @@ func (a *App) Initialize(user, password, dbName string) {
 	}
 
 	// Delete table on start
-	if err := DeleteCallTable(a.DB); err != nil {
+	if err := call.DeleteCallTable(a.DB); err != nil {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println("Table deleted")
 	}
 
 	// Init table on start
-	if err := CreateCallTable(a.DB); err != nil {
+	if err := call.CreateCallTable(a.DB); err != nil {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println("Table created")
@@ -90,13 +92,13 @@ func (a *App) getCalls(w http.ResponseWriter, r *http.Request) {
 		page = 1
 	}
 
-	totalCount, err := CountCalls(a.DB)
+	totalCount, err := call.CountCalls(a.DB)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	calls, err := getCalls(a.DB, page-1, count)
+	calls, err := call.GetCalls(a.DB, page-1, count)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -131,8 +133,8 @@ func (a *App) getCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c := call{ID: id}
-	if err := c.getCall(a.DB); err != nil {
+	c := call.Call{ID: id}
+	if err := c.GetCall(a.DB); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			respondWithError(w, http.StatusNotFound, "Call not found")
@@ -147,7 +149,7 @@ func (a *App) getCall(w http.ResponseWriter, r *http.Request) {
 
 // Create a new call
 func (a *App) createCall(w http.ResponseWriter, r *http.Request) {
-	var c call
+	var c call.Call
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&c); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
@@ -156,9 +158,9 @@ func (a *App) createCall(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	c.startCall()
+	c.StartCall()
 
-	if err := c.createCall(a.DB); err != nil {
+	if err := c.CreateCall(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -175,8 +177,8 @@ func (a *App) endCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c := call{ID: id}
-	if err := c.getCall(a.DB); err != nil {
+	c := call.Call{ID: id}
+	if err := c.GetCall(a.DB); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			respondWithError(w, http.StatusNotFound, "Call not found")
@@ -191,7 +193,7 @@ func (a *App) endCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := c.stopCall(a.DB); err != nil {
+	if err := c.StopCall(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -208,7 +210,7 @@ func (a *App) updateCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var c call
+	var c call.Call
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&c); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
@@ -217,7 +219,7 @@ func (a *App) updateCall(w http.ResponseWriter, r *http.Request) {
 
 	c.ID = id
 
-	if err := c.updateCall(a.DB); err != nil {
+	if err := c.UpdateCall(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -234,8 +236,8 @@ func (a *App) deleteCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c := call{ID: id}
-	if err := c.deleteCall(a.DB); err != nil {
+	c := call.Call{ID: id}
+	if err := c.DeleteCall(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
