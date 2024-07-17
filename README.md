@@ -3,6 +3,10 @@ API that you can call to create calls and stops them.
 The main functionality is to record the history of past and current calls. 
 
 ## Setup
+## Docker Compose
+In the root folder run: `docker compose up -d`. After a few seconds the API will be up and running.
+
+## Localy
 ### Create an .env file
 Create a file called `.env` in the route of the project and add those variables with your own values.
 - APP_DB_USERNAME=postgres
