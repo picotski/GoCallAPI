@@ -32,7 +32,6 @@ In the command line run `go run .` and the api will be up and running. You will 
 ### Implemented
 - POST `/call`: Call other User
 - GET `/call/[id]`: cet information of a call by id
-- PUT `/call/[id]`: Update call by id
 - DELETE `/call/[id]`: Delete call by id
 
 - GET `/calls`: Browse through all the calls

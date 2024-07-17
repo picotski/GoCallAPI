@@ -1,5 +1,5 @@
 README.md
 .env
-docker-compose.yaml
+compose.yaml
 .gitignore
 api.Dockerfile
