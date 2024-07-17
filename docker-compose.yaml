@@ -1,0 +1,23 @@
+services:
+  api:
+    depends_on:
+      - database
+    build:
+      context: .
+      dockerfile: api.Dockerfile
+    ports:
+      - 8010:8010
+    environment:
+      - APP_DB_USERNAME=${APP_DB_USERNAME}
+      - APP_DB_PASSWORD=${APP_DB_PASSWORD}
+      - APP_DB_NAME=${APP_DB_NAME}
+      - HOST_ADDR=database
+
+  database:
+    container_name: database
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=${APP_DB_PASSWORD}
