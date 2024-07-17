@@ -1,0 +1,33 @@
+services:
+  test-api:
+    depends_on:
+      - test-database
+    build:
+      context: .
+      dockerfile: api.Dockerfile
+    ports:
+      - 8010:8010
+    environment:
+      - APP_DB_USERNAME=${APP_DB_USERNAME}
+      - APP_DB_PASSWORD=${APP_DB_PASSWORD}
+      - APP_DB_NAME=${APP_DB_NAME}
+      - HOST_ADDR=database
+
+  test-database:
+    container_name: database
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=${APP_DB_PASSWORD}
+
+  test:
+    depends_on:
+      - test-api
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: api.test.Dockerfile
+    environment:
+      - TEST_HOST_ADDR=http://test-api:8010

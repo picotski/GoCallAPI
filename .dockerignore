@@ -1,5 +1,7 @@
 README.md
 .env
 docker-compose.yml
+docker-compose.tests.yml
 .gitignore
 api.Dockerfile
+api.test.Dockerfile

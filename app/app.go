@@ -76,7 +76,6 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/calls", a.getCalls).Methods("GET")
 	a.Router.HandleFunc("/call", a.createCall).Methods("POST")
 	a.Router.HandleFunc("/call/{id:[0-9]+}", a.getCall).Methods("GET")
-	a.Router.HandleFunc("/call/{id:[0-9]+}", a.updateCall).Methods("PUT")
 	a.Router.HandleFunc("/call/{id:[0-9]+}", a.deleteCall).Methods("DELETE")
 	a.Router.HandleFunc("/stop/{id:[0-9]+}", a.endCall).Methods("GET")
 	a.Router.HandleFunc("/health", a.healthCheck).Methods("GET")
@@ -196,32 +195,6 @@ func (a *App) endCall(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := c.StopCall(a.DB); err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	respondWithJSON(w, http.StatusOK, c)
-}
-
-// Update call by id
-func (a *App) updateCall(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid call ID")
-		return
-	}
-
-	var c call.Call
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&c); err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
-	}
-	defer r.Body.Close()
-
-	c.ID = id
-
-	if err := c.UpdateCall(a.DB); err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
