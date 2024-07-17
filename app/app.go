@@ -34,7 +34,7 @@ type PageResponce struct {
 
 func (a *App) Initialize(user, password, dbName string) {
 	connectionString := fmt.Sprintf(
-		"user=%s password=%s dbname=%s sslmode=disable",
+		"host=database port=5432 user=%s password=%s dbname=%s sslmode=disable",
 		user,
 		password,
 		dbName,
@@ -44,6 +44,7 @@ func (a *App) Initialize(user, password, dbName string) {
 
 	a.DB, err = sql.Open("postgres", connectionString)
 	if err != nil {
+		fmt.Print("Err")
 		log.Fatal(err)
 	}
 
