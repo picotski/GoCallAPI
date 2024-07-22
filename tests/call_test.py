@@ -1,18 +1,18 @@
 import os
 import requests
 import pytest
-from db.db_services import clear_db
+from db.db_services import clear_db, create_call
 
-base_url = os.getenv('TEST_HOST_ADDR') or 'http://localhost:8010'
+base_url = os.getenv('TEST_HOST_ADDR')
 
 @pytest.fixture
-def setup_before_get_call_test():
+def setup_before_all_test():
   clear_db()
 
   return 1
 
 # Verify that the server is on
-def test_if_server_health_check_isvalid():
+def test_server_health_check_isvalid(setup_before_all_test):
   # Arrange
   url = f'{base_url}/health'
 
@@ -23,27 +23,21 @@ def test_if_server_health_check_isvalid():
   assert res.status_code == 200
 
 # Get a call that exists
-def test_get_call_valid(setup_before_get_call_test):
+def test_get_single_call_isvalid(setup_before_all_test):
   # Arrange
   url = f'{base_url}/call'
-  obj = {
-    "caller": "john",
-    "recipient": "pierre"
-  }
+
+  ## Create a call
+  id = create_call()
 
   # Act
-  ## Create a call
-  post_res = requests.post(url, json=obj)
-
-  id = str(post_res.json()['id'])
-
   ## Get the call
   res = requests.get(f'{url}/{id}')
 
   # Assert
   assert res.status_code == 200
 
-def test_get_call_invalid():
+def test_get_single_call_isinvalid(setup_before_all_test):
   # Arrange
   url = f'{base_url}/call/1'
 
@@ -53,12 +47,12 @@ def test_get_call_invalid():
   # Assert
   assert res.status_code == 404
 
-def test_create_call_valid():
+def test_create_single_call_isvalid(setup_before_all_test):
   # Arrange
   url = f'{base_url}/call'
   obj = {
-    "caller": "john",
-    "recipient": "pierre"
+    "caller": "John",
+    "recipient": "Pierre"
   }
 
   # Act
@@ -66,8 +60,11 @@ def test_create_call_valid():
 
   # Assert
   assert res.status_code == 201
+  assert res.json()['caller'] == 'John'
+  assert res.json()['recipient'] == 'Pierre'
+  assert res.json()['status'] == 'Ongoing'
 
-def test_create_call_invalid():
+def test_create_single_call_with_no_body_isinvalid(setup_before_all_test):
   # Arrange
   url = f'{base_url}/call'
 
@@ -77,7 +74,7 @@ def test_create_call_invalid():
   # Assert
   assert res.status_code == 400
 
-def test_delete_call_valid():
+def test_delete_single_call_isvalid(setup_before_all_test):
   # Arrange
   url = f'{base_url}/call/1'
 
@@ -87,27 +84,22 @@ def test_delete_call_valid():
   # Assert
   assert res.status_code == 200
 
-def test_stop_call_valid():
+def test_stop_call_valid(setup_before_all_test):
   # Arrange
-  create_url = f'{base_url}/call'
   stop_url = f'{base_url}/stop'
-  obj = {
-    "caller": "john",
-    "recipient": "pierre"
-  }
+
+  ## Create a call
+  id = create_call()
 
   # Act
-  res = requests.post(create_url, json=obj)
-
-  id = str(res.json()['id'])
-
+  ## Stop call
   stop_res = requests.get(f'{stop_url}/{id}')
 
   # Assert
   assert stop_res.status_code == 200
   assert stop_res.json()['status'] == 'Ended'
 
-def test_stop_call_invalid_not_found():
+def test_stop_call_invalid_not_found(setup_before_all_test):
   # Arrange
   stop_url = f'{base_url}/stop'
 
@@ -117,21 +109,17 @@ def test_stop_call_invalid_not_found():
   # Assert
   assert stop_res.status_code == 404
 
-def test_stop_call_invalid_already_ended():
+def test_stop_call_invalid_already_ended(setup_before_all_test):
   # Arrange
-  create_url = f'{base_url}/call'
   stop_url = f'{base_url}/stop'
-  obj = {
-    "caller": "john",
-    "recipient": "pierre"
-  }
+  
+  ## Create a call
+  id = create_call()
+  ## Stop call 1
+  requests.get(f'{stop_url}/{id}')
 
   # Act
-  res = requests.post(create_url, json=obj)
-
-  id = str(res.json()['id'])
-
-  requests.get(f'{stop_url}/{id}')
+  ## Attempt to stop call
   stop_res = requests.get(f'{stop_url}/{id}')
 
   # Assert

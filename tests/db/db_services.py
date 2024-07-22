@@ -1,5 +1,6 @@
 from configparser import ConfigParser
 import psycopg2
+from datetime import datetime
 
 def load_config(filename='database.ini', section='postgresql'):
   parser = ConfigParser()
@@ -16,7 +17,8 @@ def load_config(filename='database.ini', section='postgresql'):
 
   return config
 
-def connect(config):
+def connect():
+    config = load_config()
     """ Connect to the PostgreSQL database server """
     try:
         # connecting to the PostgreSQL server
@@ -25,6 +27,28 @@ def connect(config):
             return conn
     except (psycopg2.DatabaseError, Exception) as error:
         print(error)
+
+def create_call():
+  statement = """
+    INSERT INTO calls(caller, recipient, status, start_time, end_time) 
+    VALUES(%s, %s, %s, %s, %s) 
+    RETURNING id
+  """
+
+  id = None
+
+  try:
+    with connect() as conn:
+      with conn.cursor() as cur:
+        cur.execute(statement, ('John', 'Pierre', 'Ongoing', datetime.now(), datetime.now()))
+
+        rows = cur.fetchone()
+        if rows:
+          id = rows[0]
+  except (psycopg2.DatabaseError, Exception) as error:
+    return error
+
+  return id
 
 def clear_db():
   delete_statement = 'DROP TABLE calls'
