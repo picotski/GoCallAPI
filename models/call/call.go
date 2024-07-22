@@ -66,29 +66,16 @@ func GetCall(db *sql.DB, id int) (Call, error) {
 	return c, err
 }
 
-// Update one call
-func (c *Call) UpdateCall(db *sql.DB) error {
-	_, err := db.Exec(
-		"UPDATE calls SET caller=$1, recipient=$2, status=$3, start_time=$4, end_time=$5 WHERE id=$6",
-		c.Caller,
-		c.Recipient,
-		c.Status,
-		c.StartTime,
-		c.EndTime,
-		c.ID,
-	)
-
-	return err
-}
-
 // Delete one call
-func (c *Call) DeleteCall(db *sql.DB) error {
+func DeleteCall(db *sql.DB, id int) (Call, error) {
 	_, err := db.Exec(
 		"DELETE FROM calls WHERE id=$1",
-		c.ID,
+		id,
 	)
 
-	return err
+	c := Call{ID: id}
+
+	return c, err
 }
 
 // Create one call

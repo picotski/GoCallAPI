@@ -180,7 +180,7 @@ func (a *App) endCall(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c, err := call.GetCall(a.DB, id)
-	
+
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -213,13 +213,14 @@ func (a *App) deleteCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c := call.Call{ID: id}
-	if err := c.DeleteCall(a.DB); err != nil {
+	c, err := call.DeleteCall(a.DB, id)
+
+	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+	respondWithJSON(w, http.StatusOK, c)
 }
 
 func (a *App) healthCheck(w http.ResponseWriter, r *http.Request) {
