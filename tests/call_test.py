@@ -1,23 +1,29 @@
 import os
 import requests
+import pytest
+from db.db_services import clear_db
 
-base_url = os.getenv('TEST_HOST_ADDR')
+base_url = os.getenv('TEST_HOST_ADDR') or 'http://localhost:8010'
+
+@pytest.fixture
+def setup_before_get_call_test():
+  clear_db()
+
+  return 1
 
 # Verify that the server is on
-def test_health_check_valid():
+def test_if_server_health_check_isvalid():
   # Arrange
   url = f'{base_url}/health'
 
   # Act
   res = requests.get(url)
 
-  print(base_url)
-
   # Assert
   assert res.status_code == 200
 
 # Get a call that exists
-def test_get_call_valid():
+def test_get_call_valid(setup_before_get_call_test):
   # Arrange
   url = f'{base_url}/call'
   obj = {
@@ -36,9 +42,6 @@ def test_get_call_valid():
 
   # Assert
   assert res.status_code == 200
-
-  # Cleanup
-  requests.delete(f'{url}/{id}')
 
 def test_get_call_invalid():
   # Arrange
@@ -63,11 +66,6 @@ def test_create_call_valid():
 
   # Assert
   assert res.status_code == 201
-
-  # Cleanup
-  id = str(res.json()['id'])
-
-  requests.delete(f'{url}/{id}')
 
 def test_create_call_invalid():
   # Arrange
@@ -109,9 +107,6 @@ def test_stop_call_valid():
   assert stop_res.status_code == 200
   assert stop_res.json()['status'] == 'Ended'
 
-  # Cleanup
-  requests.delete(f'{create_url}/{id}')
-
 def test_stop_call_invalid_not_found():
   # Arrange
   stop_url = f'{base_url}/stop'
@@ -141,6 +136,3 @@ def test_stop_call_invalid_already_ended():
 
   # Assert
   assert stop_res.status_code == 400
-
-  # Cleanup
-  requests.delete(f'{create_url}/{id}')
