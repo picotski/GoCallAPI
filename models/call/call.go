@@ -79,21 +79,26 @@ func DeleteCall(db *sql.DB, id int) (Call, error) {
 }
 
 // Create one call
-func (c *Call) CreateCall(db *sql.DB) error {
+func CreateCall(db *sql.DB, c Call) (Call, error) {
+	call := Call{}
+
 	err := db.QueryRow(
-		"INSERT INTO calls(caller, recipient, status, start_time, end_time) VALUES($1, $2, $3, $4, $5) RETURNING id",
+		"INSERT INTO calls(caller, recipient, status, start_time, end_time) VALUES($1, $2, $3, $4, $5) RETURNING *",
 		c.Caller,
 		c.Recipient,
 		c.Status,
 		c.StartTime,
 		c.EndTime,
-	).Scan(&c.ID)
+	).Scan(
+		&call.ID,
+		&call.Caller,
+		&call.Recipient,
+		&call.Status,
+		&call.StartTime,
+		&call.EndTime,
+	)
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return call, err
 }
 
 // Get amount of calls

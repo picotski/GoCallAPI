@@ -162,12 +162,14 @@ func (a *App) createCall(w http.ResponseWriter, r *http.Request) {
 
 	c.StartCall()
 
-	if err := c.CreateCall(a.DB); err != nil {
+	call, err := call.CreateCall(a.DB, c) 
+
+	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, c)
+	respondWithJSON(w, http.StatusCreated, call)
 }
 
 // End call
