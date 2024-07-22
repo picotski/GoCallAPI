@@ -8,6 +8,5 @@ RUN pip install -r requirements.txt
 
 COPY tests ./
 
-# ENTRYPOINT [ "sleep", "10000" ]
 ENTRYPOINT [ "pytest" ]
 CMD [ "./call_test.py" ]

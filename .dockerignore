@@ -5,3 +5,7 @@ docker-compose.tests.yml
 .gitignore
 api.Dockerfile
 api.test.Dockerfile
+venv
+.venv
+.pytest_cache
+__pycache__

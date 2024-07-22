@@ -27,3 +27,5 @@ go.work.sum
 # Tests
 venv
 .venv
+.pytest_cache
+__pycache__
