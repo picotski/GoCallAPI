@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/picotski/api/models/call"
+	"github.com/picotski/api/services/call_services"
 
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -50,14 +51,14 @@ func (a *App) Initialize(user, password, dbName, hostAddr string) {
 	}
 
 	// Delete table on start
-	if err := call.DeleteCallTable(a.DB); err != nil {
+	if err := call_services.DeleteCallTable(a.DB); err != nil {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println("Table deleted")
 	}
 
 	// Init table on start
-	if err := call.CreateCallTable(a.DB); err != nil {
+	if err := call_services.CreateCallTable(a.DB); err != nil {
 		fmt.Println(err.Error())
 	} else {
 		fmt.Println("Table created")
@@ -93,13 +94,13 @@ func (a *App) getCalls(w http.ResponseWriter, r *http.Request) {
 		page = 1
 	}
 
-	totalCount, err := call.CountCalls(a.DB)
+	totalCount, err := call_services.CountCalls(a.DB)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	calls, err := call.GetCalls(a.DB, page-1, count)
+	calls, err := call_services.GetCalls(a.DB, page-1, count)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -134,7 +135,7 @@ func (a *App) getCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c, err := call.GetCall(a.DB, id) 
+	c, err := call_services.GetCall(a.DB, id) 
 
 	if err != nil {
 		switch err {
@@ -162,7 +163,7 @@ func (a *App) createCall(w http.ResponseWriter, r *http.Request) {
 
 	c.StartCall()
 
-	call, err := call.CreateCall(a.DB, c) 
+	call, err := call_services.CreateCall(a.DB, c) 
 
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -181,7 +182,7 @@ func (a *App) endCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	initCall, err := call.GetCall(a.DB, id)
+	initCall, err := call_services.GetCall(a.DB, id)
 
 	if err != nil {
 		switch err {
@@ -198,7 +199,7 @@ func (a *App) endCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	call, err := call.StopCall(a.DB, id)
+	call, err := call_services.StopCall(a.DB, id)
 
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
@@ -217,7 +218,7 @@ func (a *App) deleteCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c, err := call.DeleteCall(a.DB, id)
+	c, err := call_services.DeleteCall(a.DB, id)
 
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
