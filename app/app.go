@@ -181,7 +181,7 @@ func (a *App) endCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c, err := call.GetCall(a.DB, id)
+	initCall, err := call.GetCall(a.DB, id)
 
 	if err != nil {
 		switch err {
@@ -193,17 +193,19 @@ func (a *App) endCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if c.Status == "Ended" {
+	if initCall.Status == "Ended" {
 		respondWithError(w, http.StatusBadRequest, "Call already ended")
 		return
 	}
 
-	if err := c.StopCall(a.DB); err != nil {
+	call, err := call.StopCall(a.DB, id)
+
+	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, c)
+	respondWithJSON(w, http.StatusOK, call)
 }
 
 // Delete call by id

@@ -128,18 +128,21 @@ func (c *Call) StartCall() {
 }
 
 // Stop call
-func (c *Call) StopCall(db *sql.DB) error {
-	c.Status = "Ended"
-	c.EndTime = time.Now()
-
+func StopCall(db *sql.DB, id int) (Call, error) {
 	_, err := db.Exec(
 		"UPDATE calls SET status=$1, end_time=$2 WHERE id=$3",
-		c.Status,
-		c.EndTime,
-		c.ID,
+		"Ended",
+		time.Now(),
+		id,
 	)
 
-	return err
+	if err != nil {
+		return Call{}, err
+	}
+
+	call, err := GetCall(db, id)
+
+	return call, err
 }
 
 // Init calls table
