@@ -48,10 +48,12 @@ func GetCalls(db *sql.DB, page, count int) ([]Call, error) {
 }
 
 // Get one call
-func (c *Call) GetCall(db *sql.DB) error {
-	return db.QueryRow(
+func GetCall(db *sql.DB, id int) (Call, error) {
+	c := Call{ID: id}
+
+	err := db.QueryRow(
 		"SELECT id, caller, recipient, status, start_time, end_time FROM calls WHERE id=$1",
-		c.ID,
+		id,
 	).Scan(
 		&c.ID,
 		&c.Caller,
@@ -60,6 +62,8 @@ func (c *Call) GetCall(db *sql.DB) error {
 		&c.StartTime,
 		&c.EndTime,
 	)
+
+	return c, err
 }
 
 // Update one call

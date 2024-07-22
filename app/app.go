@@ -134,8 +134,9 @@ func (a *App) getCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c := call.Call{ID: id}
-	if err := c.GetCall(a.DB); err != nil {
+	c, err := call.GetCall(a.DB, id) 
+
+	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			respondWithError(w, http.StatusNotFound, "Call not found")
@@ -178,8 +179,9 @@ func (a *App) endCall(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	c := call.Call{ID: id}
-	if err := c.GetCall(a.DB); err != nil {
+	c, err := call.GetCall(a.DB, id)
+	
+	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			respondWithError(w, http.StatusNotFound, "Call not found")
