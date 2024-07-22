@@ -48,7 +48,7 @@ In the root folder run: `docker compose -f docker-compose.tests.yml up -d`. Afte
 
 - GET `/calls`: Browse through all the calls
 
-- GET `/stop/[id]`: End call with User
+- GET `/end-call/[id]`: End call with User
 
 - GET `/health`: To get server health check
 

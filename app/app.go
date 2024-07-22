@@ -66,7 +66,7 @@ func (a *App) initializeRoutes() {
 	a.Router.HandleFunc("/call", a.createCall).Methods("POST")
 	a.Router.HandleFunc("/call/{id:[0-9]+}", a.getCall).Methods("GET")
 	a.Router.HandleFunc("/call/{id:[0-9]+}", a.deleteCall).Methods("DELETE")
-	a.Router.HandleFunc("/stop/{id:[0-9]+}", a.endCall).Methods("GET")
+	a.Router.HandleFunc("/end-call/{id:[0-9]+}", a.endCall).Methods("GET")
 	a.Router.HandleFunc("/health", a.healthCheck).Methods("GET")
 }
 

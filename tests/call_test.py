@@ -86,7 +86,7 @@ def test_delete_single_call_isvalid(setup_before_all_test):
 
 def test_stop_call_valid(setup_before_all_test):
   # Arrange
-  stop_url = f'{base_url}/stop'
+  stop_url = f'{base_url}/end-call'
 
   ## Create a call
   id = create_call()
@@ -101,7 +101,7 @@ def test_stop_call_valid(setup_before_all_test):
 
 def test_stop_call_invalid_not_found(setup_before_all_test):
   # Arrange
-  stop_url = f'{base_url}/stop'
+  stop_url = f'{base_url}/end-call'
 
   # Act
   stop_res = requests.get(f'{stop_url}/1')
@@ -111,7 +111,7 @@ def test_stop_call_invalid_not_found(setup_before_all_test):
 
 def test_stop_call_invalid_already_ended(setup_before_all_test):
   # Arrange
-  stop_url = f'{base_url}/stop'
+  stop_url = f'{base_url}/end-call'
   
   ## Create a call
   id = create_call()
