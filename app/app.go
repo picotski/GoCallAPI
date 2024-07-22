@@ -21,18 +21,6 @@ type App struct {
 	DB     *sql.DB
 }
 
-type Health struct {
-	Status int
-	Time   string
-}
-
-type PageResponce struct {
-	TotalCount int    `json:"totalCount"`
-	PrevPage   int    `json:"prevPage"`
-	NextPage   int    `json:"nextPage"`
-	Calls      []call.Call `json:"calls"`
-}
-
 func (a *App) Initialize(user, password, dbName, hostAddr string) {
 	connectionString := fmt.Sprintf(
 		"host=%s port=5432 user=%s password=%s dbname=%s sslmode=disable",
@@ -115,7 +103,12 @@ func (a *App) getCalls(w http.ResponseWriter, r *http.Request) {
 		nextPage = page
 	}
 
-	res := PageResponce{
+	res := struct {
+		TotalCount int    `json:"totalCount"`
+		PrevPage   int    `json:"prevPage"`
+		NextPage   int    `json:"nextPage"`
+		Calls      []call.Call `json:"calls"`
+	} {
 		TotalCount: totalCount,
 		PrevPage:   prevPage,
 		NextPage:   nextPage,
@@ -229,7 +222,10 @@ func (a *App) deleteCall(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *App) healthCheck(w http.ResponseWriter, r *http.Request) {
-	responce := Health{
+	responce := struct {
+		Status int
+		Time   string
+	} {
 		Time:   time.Now().String(),
 		Status: http.StatusOK,
 	}
